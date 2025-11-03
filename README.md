@@ -15,6 +15,10 @@ This application consists of:
 
 ## Authentication System (JWT + JWKS)
 
+## DemoVideo
+https://github.com/user-attachments/assets/cfb0354a-506a-421a-ad50-45808915b169
+
+
 ### Architecture
 - **Auth Service**: Issues RS256 JWTs and serves JWKS endpoint
 - **Other Services**: Verify tokens using JWKS URI with caching
