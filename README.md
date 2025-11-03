@@ -35,31 +35,42 @@ https://github.com/user-attachments/assets/cfb0354a-506a-421a-ad50-45808915b169
 - Support role-based access control (admin, user)
 - Automatic token validation via JWKS
 
-### Architecture Decision: Direct Service Routing
+### Architecture Decision: Microservices with API Gateway
 
-We chose to route requests **directly to specialized services via Traefik** rather than having a central API gateway server.
+We use **Traefik as our API gateway** to route requests directly to specialized microservices, rather than through a central application server or Backend-for-Frontend (BFF) aggregation layer.
 
 #### Current Architecture ✅
 ```
-Client → Traefik → Auth Service (POST /auth/login, /auth/register)
-                → Agent Router (POST /agents/*)
-                → React App (GET /)
+Client → Traefik (API Gateway) → Auth Service (POST /auth/*)
+                                → Agent Router (POST /agents/*)
+                                → React App (GET /)
 ```
 
 **Why we chose this approach:**
-- ✅ **Microservices Best Practice**: Clean service separation and single responsibility
-- ✅ **Performance**: Direct routing, no extra hops or proxy layers
+- ✅ **Clean Microservices**: Each service is independent with single responsibility
+- ✅ **Direct Service Routing**: API gateway routes directly to services, no aggregation layer
 - ✅ **Scalability**: Each service scales independently based on demand
 - ✅ **Fault Isolation**: Service failure doesn't affect other services
-- ✅ **Simplified Architecture**: Fewer moving parts, easier to maintain
-- ✅ **Production Ready**: Standard API gateway pattern with Traefik
+- ✅ **Standard Pattern**: Industry-standard API gateway architecture with Traefik
+- ✅ **Performance**: No extra application layer adding latency
+
+#### What We're NOT Using ❌
+```
+Client → Traefik → Central Server → Auth Service
+                                  → Agent Router
+```
+
+This architecture avoids:
+- ❌ Monolithic backend server handling all business logic
+- ❌ Additional BFF (Backend-for-Frontend) aggregation layer
+- ❌ Extra hop adding latency and complexity
 
 #### Implementation Benefits
-- **Client Simplicity**: Single API endpoint (`localhost`) with clear path prefixes
-- **Service Independence**: All services are completely decoupled
+- **Client Simplicity**: Single entry point with clear path-based routing (`/auth/*`, `/agents/*`)
+- **Service Independence**: All services are completely decoupled and independently deployable
 - **Operational Excellence**: Each service can be deployed, scaled, and monitored independently  
-- **Security**: Authentication and AI logic are isolated and specialized
-- **Cost Efficiency**: No redundant API layer, optimal resource utilization
+- **Security**: Authentication and AI logic are isolated in separate services
+- **Traefik Features**: Built-in load balancing, SSL termination, middleware support
 
 ### Environment Variables
 ```env
